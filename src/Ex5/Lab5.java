@@ -7,12 +7,14 @@ import java.util.Scanner;
  */
 public class Lab5 {
         
-      public static String commands;
-      public static int commandInt;
-      public static Account currentUser;
-      static ArrayList<Account> ABC = new ArrayList<Account>();
+      private static String commands;
+      private static int commandInt;
+      private static Account currentUser;
+      private static ArrayList<Account> ABC = new ArrayList<Account>();
       
-      public static void displayOperation() {
+      private static int[] array = new int[10000];
+      
+      private static void displayOperation() {
           System.out.println(" ");
           System.out.println("You have the following operations");
           if (currentUser.accountType == 0) {
@@ -41,21 +43,21 @@ public class Lab5 {
           
       }
       
-      public static String userInput(){
+      private static String userInput(){
         Scanner user_input = new Scanner(System.in); 
         commands = user_input.next();
 //      System.out.print("This is what Test1 is :" + commands);
         return commands; 
       }
       
-      public static int userInputInt(){
+      private static int userInputInt(){
         Scanner user_input = new Scanner(System.in); 
         commandInt = user_input.nextInt();
 //      System.out.print("This is what Test1 is :" + commands);
         return commandInt; 
       }
 
-      public static void logout(){
+      private static void logout(){
           System.out.println("Bye " + currentUser.name);
           currentUser = null;
       }
@@ -70,7 +72,7 @@ public class Lab5 {
         return false;
     }
       
-      public static int searchAccount(String Name) {
+      private static int searchAccount(String Name) {
             int i = 0; String temp;
             for (i=0; i<(ABC.size());i++) {
                 temp = ABC.get(i).name;
@@ -78,7 +80,7 @@ public class Lab5 {
                     return i;
                 }
             }
-            System.err.println("Cannot Find Account with Name" + Name);
+            System.err.println("Cannot Find Account with Name: " + Name);
             return -1;
         }
     
@@ -120,16 +122,17 @@ public class Lab5 {
             if (commands.equalsIgnoreCase("logout")) {
                 break;
             }
-            if (commands.equals("createCheqOnlyCustomer")) {
+            if (commands.equalsIgnoreCase("createCheqOnlyCustomer")) {
                 tmp1=null; tmp2=null; tmp10=-1;
-                System.out.println("Enter New Customer Name:");
+                System.out.println("Enter New Customer Name: ");
                 tmp1 = userInput();
-                System.out.println("Enter New Password:");
+                System.out.println("Enter New Password: ");
                 tmp2 = userInput();
-                System.out.println("Enter amount to Cheq:");
+                System.out.println("Enter amount to Cheq: ");
                 tmp10 = userInputInt();
                 if ((tmp1 != null) && (tmp2 != null) && (tmp10 > 19)) {
                     ABC.add(new CheqOnlyCustomer(tmp1, tmp2, 1, tmp10));
+                    array[searchAccount(tmp1)] = tmp10;
                     System.out.println("CheqOnlyCustomer Created");
                 } else {
                     System.err.println("IllegalArgumentException");
@@ -138,18 +141,20 @@ public class Lab5 {
             
             if (commands.equalsIgnoreCase("CreateCheqSavCustomer")) {
                 tmp1=null; tmp2=null; tmp10=-1;
-                System.out.println("Enter New Customer Name:");
+                System.out.println("Enter New Customer Name: ");
                 tmp1 = userInput();
-                System.out.println("Enter New Password:");
+                System.out.println("Enter New Password: ");
                 tmp2 = userInput();
-                System.out.println("Enter amount to Cheq:");
+                System.out.println("Enter amount to Cheq: ");
                 tmp10 = userInputInt();
-                System.out.println("Enter amount to Saving:");
+                System.out.println("Enter amount to Saving: ");
                 tmp20 = userInputInt();
                 
                 if ((tmp1 != null) && (tmp2 != null) 
                         && (tmp10 > 19) && (tmp20 > 19)) {
                     ABC.add(new CheqSavCustomer(tmp1, tmp2, 2, tmp10, tmp20));
+                    array[searchAccount(tmp1)] = tmp10;
+                    array[searchAccount(tmp1)*10] = tmp20;
                     System.out.println("CheqSavCustomer Created");
                 } else {
                     System.err.println("IllegalArgumentException");
@@ -158,14 +163,19 @@ public class Lab5 {
             
             if (commands.equalsIgnoreCase("DeleteCustomer")) {
                 tmp1 = null; tmp10 = -1;
-                System.out.println("Enter New Customer Name:");
+                System.out.println("Enter New Customer Name: ");
                 tmp1 = userInput();
                 tmp10 = searchAccount(tmp1);
                 if (tmp10 != -1) {
+                    if (ABC.get(tmp10).accountType==2){
+                        array[tmp10*10] = 0;
+                    }
                     ABC.remove(tmp10);
-                    System.out.println("Removed!");
+                    array[tmp10] = 0;
+                    
+                    System.out.println("Removed! ");
                 } else {
-                    System.err.println("Remove Fail");
+                    System.err.println("Remove Fail ");
                 }
             } 
         }
@@ -184,10 +194,11 @@ public class Lab5 {
             }
             if (commands.equalsIgnoreCase("DepositCheq")) {
                 tmp10=0;
-                System.out.println("Enter Amount");
+                System.out.println("Enter Amount: ");
                 tmp10 = userInputInt();
                 if (tmp10 > 0) {
                     //TODO Deposit
+                    array[searchAccount(currentUser.name)] += tmp10;
                 } else {
                     System.err.println("IllegalArgumentException");
                 }
@@ -199,6 +210,7 @@ public class Lab5 {
                 tmp10 = userInputInt();
                 if (tmp10 > 0 ) { //TODO Negative Balance Check
                     //TODO Withdraw
+                    array[searchAccount(currentUser.name)] -= tmp10;
                 } else {
                     System.err.println("IllegalArgumentException");
                 }
@@ -206,6 +218,8 @@ public class Lab5 {
             
             if (commands.equalsIgnoreCase("checkBalance")) {
                 //TODO checkBalance
+                System.out.println(" ");
+                System.out.println("Current Balance: " + array[searchAccount(currentUser.name)]);
             }
      
         }
@@ -223,12 +237,13 @@ public class Lab5 {
                 // TODO Save Data
                 break;
             }
-            if (commands.equalsIgnoreCase("DepositCheq")) {
+            if (commands.equalsIgnoreCase("Deposit2Cheq")) {
                 tmp10=0;
-                System.out.println("Enter Amount");
+                System.out.println("Enter Amount: ");
                 tmp10 = userInputInt();
                 if (tmp10 > 0) {
                     //TODO Deposit
+                    array[searchAccount(currentUser.name)] += tmp10;
                 } else {
                     System.err.println("IllegalArgumentException");
                 }
@@ -236,10 +251,11 @@ public class Lab5 {
             
             if (commands.equalsIgnoreCase("WithdrawCheq")) {
                 tmp10=0;
-                System.out.println("Enter Amount");
+                System.out.println("Enter Amount: ");
                 tmp10 = userInputInt();
                 if (tmp10 > 0 ) { //TODO Negative Balance Check
                     //TODO Withdraw
+                    array[searchAccount(currentUser.name)] -= tmp10;
                 } else {
                     System.err.println("IllegalArgumentException");
                 }
@@ -247,14 +263,18 @@ public class Lab5 {
             
             if (commands.equalsIgnoreCase("checkBalance")) {
                 //TODO checkBalance
+                System.out.println(" ");
+                System.out.println("Current CheqBalance: " + array[searchAccount(currentUser.name)]);
+                System.out.println("Current SavBalance: " + array[searchAccount(currentUser.name)*10]);
             }
             
-             if (commands.equalsIgnoreCase("DepositSav")) {
+             if (commands.equalsIgnoreCase("Deposit2Sav")) {
                 tmp10=0;
                 System.out.println("Enter Amount");
                 tmp10 = userInputInt();
                 if (tmp10 > 0) {
                     //TODO Deposit
+                    array[searchAccount(currentUser.name)*10] += tmp10;
                 } else {
                     System.err.println("IllegalArgumentException");
                 }
@@ -266,6 +286,7 @@ public class Lab5 {
                 tmp10 = userInputInt();
                 if (tmp10 > 0 ) { //TODO Negative Balance Check
                     //TODO Withdraw
+                    array[searchAccount(currentUser.name)*10] -= tmp10;
                 } else {
                     System.err.println("IllegalArgumentException");
                 }
@@ -277,6 +298,8 @@ public class Lab5 {
                 tmp10 = userInputInt();
                 if (tmp10 > 0) {
                     //TODO Deposit
+                    array[searchAccount(currentUser.name)] -= tmp10;
+                    array[searchAccount(currentUser.name)*10] += tmp10;
                 } else {
                     System.err.println("IllegalArgumentException");
                 }
@@ -288,6 +311,8 @@ public class Lab5 {
                 tmp10 = userInputInt();
                 if (tmp10 > 0 ) { //TODO Negative Balance Check
                     //TODO Withdraw
+                    array[searchAccount(currentUser.name)] += tmp10;
+                    array[searchAccount(currentUser.name)*10] -= tmp10;
                 } else {
                     System.err.println("IllegalArgumentException");
                 }
